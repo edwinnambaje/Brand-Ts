@@ -1,16 +1,18 @@
 import { Request, Response } from 'express';
 
-import Message from '../models/message';
+import Message, { Imessage } from '../models/message';
 import { mailer } from '../helper/email';
+import { messageSchema } from '../helper/joi';
 
 const createMessage = async (req: Request, res: Response) => {
     try {
         const { name, email , message} = req.body;
-        const messages = await Message.create({
-            name,
-            email,
-            message
-        });
+        const { error, value } = messageSchema.validate(req.body);
+        if (error) {
+          return res.status(400).json({ error: error.message });
+        }
+        const newMessage: Imessage = new Message(value);
+        const savedMessage = await newMessage.save();
         await mailer(email, message);
         return res.status(201).json({
             message: "Email sent successfully"

@@ -2,11 +2,16 @@ import { Request ,Response } from "express";
 import cloudinary from "../helper/cloudinary";
 
 import Post from "../models/blog"
+import { postSchema } from "../helper/joi";
 
 //Create post
 const createPost = async(req:Request,res:Response)=>{
   try{
-    const { title, desc } = req.body;
+    const { error, value } = postSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+    const { title, desc } = value;
     if (!req.file) {
       return res.status(400).json({ error: 'No file provided'});
     }
@@ -15,15 +20,16 @@ const createPost = async(req:Request,res:Response)=>{
       return res.status(400).json({ error: 'Title already exists' });
     }
     const result = await cloudinary.uploader.upload(req.file.path);
-    const post = await Post.create({
+    const newPost = new Post({
       title,
       desc,
-      image: result.secure_url
+      image: result.secure_url,
     });
-    return res.status(201).json(post)
+    const savedPost = await newPost.save();
+    return res.status(201).json(savedPost)
     }
     catch(e){
-      return res.status(500).json()
+      return res.status(500).json(e)
     }
 }
 //get post
