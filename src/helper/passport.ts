@@ -1,26 +1,51 @@
-import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from 'passport-jwt';
-import { PassportStatic } from 'passport';
-import User, { IUser } from '../models/user';
+import passport from 'passport';
+import bcrypt from 'bcrypt';
+import UserModel, { IUser } from '../models/user';
+const localStrategy = require('passport-local').Strategy;
 
-const options: StrategyOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET || '',
-};
-
-export default (passport: PassportStatic) => {
-  passport.use(
-    new JwtStrategy(options, async (jwt_payload, done) => {
+// ...
+passport.use(
+  'register',
+  new localStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password'
+    },
+    async (email:string, password:string, done: (error: any, user?: IUser | false) => void) => {
       try {
-        const user = await User.findOne({ username: jwt_payload.username });
-
-        if (user) {
-          return done(null, user);
-        }
-
-        return done(null, false);
+        const username = "edwin"
+        const user = await UserModel.create({ email, password, username });
+        return done(null, user);
       } catch (error) {
-        return done(error, false);
+        done(error);
       }
-    })
-  );
-};
+    }
+  )
+);
+// ...
+
+passport.use(
+  'login',
+  new localStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password'
+    },
+    async (email: string, password: string, done : (error :any , user?: IUser | false,options?: { message?: string; error?: any })=> void) => {
+      try {
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+          return done(null, false, { message: 'User not found' });
+        }
+        const compare = await bcrypt.compare(password, user.password);
+        if (!compare) {
+          return done(null, false, { message: 'Wrong Password' });
+        }
+        return done(null, user, { message: 'Logged in Successfully' });
+      } catch (error) {
+        return done(error);
+      }
+    }
+  )
+);
+export default passport
