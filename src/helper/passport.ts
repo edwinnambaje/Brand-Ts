@@ -1,4 +1,5 @@
 import passport from 'passport';
+import { Request } from 'express';
 import bcrypt from 'bcrypt';
 import UserModel, { IUser } from '../models/user';
 const localStrategy = require('passport-local').Strategy;
@@ -9,11 +10,12 @@ passport.use(
   new localStrategy(
     {
       usernameField: 'email',
-      passwordField: 'password'
+      passwordField: 'password',
+      passReqToCallback: true,
     },
-    async (email:string, password:string, done: (error: any, user?: IUser | false) => void) => {
+    async (req: Request,email:string, password:string, done: (error: any, user?: IUser | false) => void) => {
       try {
-        const username = "edwin"
+        const username = req.body?.username
         const user = await UserModel.create({ email, password, username });
         return done(null, user);
       } catch (error) {
