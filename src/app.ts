@@ -1,4 +1,6 @@
 import express from 'express';
+import swaggerUI from 'swagger-ui-express'
+import swagger from './docConfig/swagger'
 import connectToDatabase from './db';
 import dotenv from 'dotenv';
 import route from './routes';
@@ -15,6 +17,7 @@ app.use(express.json());
 app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swagger))
 // require('./helper/passport')(passport)
 app.use("/api", route);
 
