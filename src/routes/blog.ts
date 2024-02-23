@@ -5,8 +5,8 @@ import upload from "../helper/multer"
 
 const blogRouter = Router()
 blogRouter.post('/create', upload.single('image'),createPost)
-blogRouter.get('/:id', getPost)
 blogRouter.get('/all', getAllPost)
+blogRouter.get('/:id', getPost)
 blogRouter.patch('/:id', updatePost)
 blogRouter.delete('/:id', deletePost)
 

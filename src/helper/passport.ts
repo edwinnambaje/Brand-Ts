@@ -37,7 +37,7 @@ passport.use(
       try {
         const user = await UserModel.findOne({ email });
         if (!user) {
-          return done(null, false, { message: 'User not found' });
+          return done(null, false, {message: 'User not found' });
         }
         const compare = await bcrypt.compare(password, user.password);
         if (!compare) {

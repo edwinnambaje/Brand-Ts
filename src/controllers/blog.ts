@@ -23,10 +23,13 @@ const createPost = async(req:Request,res:Response)=>{
     const newPost = new Post({
       title,
       desc,
-      image: result.secure_url,
+      image: result.secure_url || "",
     });
     const savedPost = await newPost.save();
-    return res.status(201).json(savedPost)
+    return res.status(201).json({
+      message : "Blog Created Successfully",
+      savedPost
+    })
     }
     catch(e){
       return res.status(500).json(e)
@@ -80,7 +83,10 @@ const getAllPost=async(req:Request,res:Response)=>{
     try {
       let posts;
         posts = await Post.find();
-      res.status(200).json(posts);
+      res.status(200).json({
+        message: "Blogs Fetched Successfully",
+        posts
+      });
     } catch (err) {
       res.status(500).json(err);
     }

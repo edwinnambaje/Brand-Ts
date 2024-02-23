@@ -10,7 +10,11 @@ export interface IUser extends Document {
 const userSchema = new Schema({
   username: { type: String, required: true },
   password: { type: String, required: true },
-  email: { type: String, required: true },
+  email: {
+    type: String,
+    required: true,
+    match: /^\S+@\S+\.\S+$/,
+  },
 });
 
 userSchema.pre('save', async function (next) {

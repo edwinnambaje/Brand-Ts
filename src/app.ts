@@ -11,6 +11,9 @@ dotenv.config();
 const app = express();
 const port: number = parseInt(process.env.PORT!, 10);
 
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 connectToDatabase();
 
 app.use(express.json());
@@ -20,9 +23,5 @@ app.use(passport.session());
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swagger))
 // require('./helper/passport')(passport)
 app.use("/api", route);
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
 
 export default app;
